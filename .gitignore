@@ -1,0 +1,4 @@
+/.idea/
+/vendor/
+custom.task.properties
+composer.lock
