@@ -2,9 +2,15 @@
 
 namespace Phing\PhingUnit\Listener\BasePhingUnitListener;
 
+use Phing\Listener\BuildEvent;
+use Phing\Listener\BuildListener;
 use Phing\PhingUnit\Listener\BasePhingUnitListener;
 
-class LogGrabber implements \BuildListener
+/**
+ * Class LogGrabber
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
+ */
+class LogGrabber implements BuildListener
 {
     /** @var BasePhingUnitListener */
     private $basePhingUnitListener;
@@ -14,31 +20,31 @@ class LogGrabber implements \BuildListener
         $this->basePhingUnitListener = $listener;
     }
     
-    public function buildStarted(\BuildEvent $event)
+    public function buildStarted(BuildEvent $event)
     {
     }
 
-    public function buildFinished(\BuildEvent $event)
+    public function buildFinished(BuildEvent $event)
     {
     }
 
-    public function targetStarted(\BuildEvent $event)
+    public function targetStarted(BuildEvent $event)
     {
     }
 
-    public function targetFinished(\BuildEvent $event)
+    public function targetFinished(BuildEvent $event)
     {
     }
 
-    public function taskStarted(\BuildEvent $event)
+    public function taskStarted(BuildEvent $event)
     {
     }
 
-    public function taskFinished(\BuildEvent $event)
+    public function taskFinished(BuildEvent $event)
     {
     }
 
-    public function messageLogged(\BuildEvent $event)
+    public function messageLogged(BuildEvent $event)
     {
         $priority = $event->getPriority();
         // Filter out messages based on priority

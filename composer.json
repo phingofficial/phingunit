@@ -1,0 +1,32 @@
+{
+  "name": "phing/phingunit",
+  "description": "phingunit task that runs build files instead of test classes and is modelled after the PHPUnit task.",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "LGPL-3.0-only",
+  "type": "phing-extension",
+  "authors": [
+    {
+      "name": "Siad Ardroumli",
+      "email": "siad.ardroumli@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">= 7.3"
+  },
+  "require-dev": {
+    "phing/phing": "3.0.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "Phing\\PhingUnit\\": "src/"
+    }
+  },
+  "extra": {
+    "phing-custom-taskdefs": {
+      "pu-phingunit": "Phing\\PhingUnit\\PhingUnit",
+      "pu-fail": "Phing\\PhingUnit\\AssertTask",
+      "pu-logcapturer": "Phing\\PhingUnit\\LogCapturer"
+    }
+  }
+}

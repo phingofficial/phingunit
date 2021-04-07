@@ -2,24 +2,28 @@
 
 namespace Phing\PhingUnit;
 
+use Phing\Listener\BuildEvent;
+use Phing\Listener\BuildListener;
+use Phing\Project;
+
 /**
  * Captures log messages generated during an phingunit task run and
  * makes them available to tasks via a project reference.
  *
  * This class captures all messages generated during the build and
  * adds itself as project reference to the project.
- * @package Phing\PhingUnit
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
-class LogCapturer implements \BuildListener
+class LogCapturer implements BuildListener
 {
     public const REFERENCE_ID = 'phing.phingunit.log';
 
     private $events = [];
     
-    /** @var \Project $p */
+    /** @var Project $p */
     private $p;
 
-    public function __construct(\Project $p)
+    public function __construct(Project $p)
     {
         $this->p = $p;
         $p->addBuildListener($this);
@@ -34,7 +38,7 @@ class LogCapturer implements \BuildListener
      */
     public function getErrLog(bool $mergeLines = true): string
     {
-        return $this->getLog(\Project::MSG_ERR, $mergeLines);
+        return $this->getLog(Project::MSG_ERR, $mergeLines);
     }
 
     private function getLog(int $minPriority, bool $mergeLines): string
@@ -48,7 +52,7 @@ class LogCapturer implements \BuildListener
 
     private static function append(
         &$sb,
-        \BuildEvent $event,
+        BuildEvent $event,
         int $minPriority,
         bool $mergeLines
     ): void {
@@ -69,7 +73,7 @@ class LogCapturer implements \BuildListener
      */
     public function getWarnLog(bool $mergeLines): string
     {
-        return $this->getLog(\Project::MSG_WARN, $mergeLines);
+        return $this->getLog(Project::MSG_WARN, $mergeLines);
     }
 
     /**
@@ -81,7 +85,7 @@ class LogCapturer implements \BuildListener
      */
     public function getInfoLog(bool $mergeLines): string
     {
-        return $this->getLog(\Project::MSG_INFO, $mergeLines);
+        return $this->getLog(Project::MSG_INFO, $mergeLines);
     }
 
     /**
@@ -93,7 +97,7 @@ class LogCapturer implements \BuildListener
      */
     public function getVerboseLog(bool $mergeLines): string
     {
-        return $this->getLog(\Project::MSG_VERBOSE, $mergeLines);
+        return $this->getLog(Project::MSG_VERBOSE, $mergeLines);
     }
 
     /**
@@ -105,54 +109,54 @@ class LogCapturer implements \BuildListener
      */
     public function getDebugLog(bool $mergeLines): string
     {
-        return $this->getLog(\Project::MSG_DEBUG, $mergeLines);
+        return $this->getLog(Project::MSG_DEBUG, $mergeLines);
     }
 
     /**
      * Empty.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function buildStarted(\BuildEvent $event)
+    public function buildStarted(BuildEvent $event)
     {
     }
 
     /**
      * Empty.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function targetStarted(\BuildEvent $event)
+    public function targetStarted(BuildEvent $event)
     {
     }
 
     /**
      * Empty.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function targetFinished(\BuildEvent $event)
+    public function targetFinished(BuildEvent $event)
     {
     }
 
     /**
      * Empty.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function taskStarted(\BuildEvent $event)
+    public function taskStarted(BuildEvent $event)
     {
     }
 
     /**
      * Empty.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function taskFinished(\BuildEvent $event)
+    public function taskFinished(BuildEvent $event)
     {
     }
 
     /**
      * De-register.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function buildFinished(\BuildEvent $event)
+    public function buildFinished(BuildEvent $event)
     {
         if ($this->p !== null && $event->getProject() === $this->p) {
             $this->p->removeBuildListener($this);
@@ -163,9 +167,9 @@ class LogCapturer implements \BuildListener
 
     /**
      * Record the message.
-     * @param \BuildEvent $event
+     * @param BuildEvent $event
      */
-    public function messageLogged(\BuildEvent $event)
+    public function messageLogged(BuildEvent $event)
     {
         $this->events[] = $event;
     }

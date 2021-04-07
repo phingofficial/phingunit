@@ -2,11 +2,13 @@
 
 namespace Phing\PhingUnit;
 
+use Phing\Project;
+
 /**
  * Interface ProjectFactory
- * @package Phing\PhingUnit
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
 interface ProjectFactory
 {
-    public function createProject();
+    public function createProject(): Project;
 }

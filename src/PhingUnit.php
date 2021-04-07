@@ -2,6 +2,16 @@
 
 namespace Phing\PhingUnit;
 
+use Phing\Exception\BuildException;
+use Phing\Io\File;
+use Phing\Io\IOException;
+use Phing\Listener\BuildEvent;
+use Phing\Listener\BuildListener;
+use Phing\Parser\ProjectConfigurator;
+use Phing\Project;
+use Phing\Task;
+use Phing\Type\FileSet;
+
 /**
  * Run every target whose name starts with "test" in a set of build files.
  *
@@ -11,8 +21,9 @@ namespace Phing\PhingUnit;
  * has failed; any other exception is considered an error (although
  * BuildException will be scanned recursively for nested
  * AssertionFailedExceptions).</p>
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
-class PhingUnit extends \Task
+class PhingUnit extends Task
 {
     /**
      * Message to print if an error or failure occured.
@@ -29,7 +40,7 @@ class PhingUnit extends \Task
      */
     public const ERROR_NON_FILES = 'Only file system resources are supported.';
 
-    /** @var \FileSet */
+    /** @var FileSet */
     private $buildFiles;
 
     /**
@@ -56,6 +67,7 @@ class PhingUnit extends \Task
      * @var PhingUnitScriptRunner
      */
     private $scriptRunner;
+    /** @var PhingUnitExecutionNotifier */
     private $notifier;
     /** @var PhingUnitListener[] */
     private $listeners = [];
@@ -153,7 +165,7 @@ class PhingUnit extends \Task
     public function main()
     {
         if ($this->buildFiles === null) {
-            throw new \BuildException(self::ERROR_NO_TESTS);
+            throw new BuildException(self::ERROR_NO_TESTS);
         }
         $this->doFileSet($this->buildFiles);
         if ($this->failures > 0 || $this->errors > 0) {
@@ -161,7 +173,7 @@ class PhingUnit extends \Task
                 $this->getProject()->setNewProperty($this->errorProperty, 'true');
             }
             if ($this->failOnError) {
-                throw new \BuildException(
+                throw new BuildException(
                     sprintf(
                         '%s%d failure%s and %d error%s',
                         self::ERROR_TESTS_FAILED,
@@ -176,26 +188,26 @@ class PhingUnit extends \Task
     }
 
     /**
-     * @param \FileSet $buildFiles
+     * @param FileSet $buildFiles
      */
-    private function doFileSet(\FileSet $buildFiles): void
+    private function doFileSet(FileSet $buildFiles): void
     {
         $iter = $buildFiles->getIterator();
         while ($iter->valid()) {
-            /** @var \PhingFile $f */
+            /** @var File $f */
             $f = $iter->current();
             if ($f->isFile()) {
                 $this->doFile($f);
             } else {
-                $this->log("Skipping {$f} since it doesn't exist", \Project::MSG_VERBOSE);
+                $this->log("Skipping {$f} since it doesn't exist", Project::MSG_VERBOSE);
             }
             $iter->next();
         }
     }
 
-    private function doFile(\PhingFile $f): void
+    private function doFile(File $f): void
     {
-        $this->log("Running tests in build file {$f}", \Project::MSG_DEBUG);
+        $this->log("Running tests in build file {$f}", Project::MSG_DEBUG);
         $prjFactory = new class ($f, $this) implements ProjectFactory {
             private $f;
             /** @var PhingUnit */
@@ -207,7 +219,7 @@ class PhingUnit extends \Task
                 $this->that = $that;
             }
 
-            public function createProject()
+            public function createProject(): Project
             {
                 return $this->that->createProjectForFile($this->f);
             }
@@ -223,14 +235,13 @@ class PhingUnit extends \Task
 
     /**
      * Creates a new project instance and configures it.
-     * @param \PhingFile $f the File for which to create a Project.
-     * @return \Project
-     * @throws \IOException
-     * @throws \NullPointerException
+     * @param File $f the File for which to create a Project.
+     * @return Project
+     * @throws IOException
      */
-    public function createProjectForFile(\PhingFile $f): \Project
+    public function createProjectForFile(File $f): Project
     {
-        $p = new \Project();
+        $p = new Project();
         $p->init();
         $p->setInputHandler($this->getProject()->getInputHandler());
 
@@ -238,7 +249,7 @@ class PhingUnit extends \Task
         $p->setUserProperty('phing.dir', dirname($f->getAbsolutePath()));
         $this->attachListeners($f, $p);
 
-        \ProjectConfigurator::configureProject($p, $f);
+        ProjectConfigurator::configureProject($p, $f);
 
         return $p;
     }
@@ -246,49 +257,49 @@ class PhingUnit extends \Task
     /**
      * Wraps all registered test listeners in BuildListeners and
      * attaches them to the new project instance.
-     * @param \PhingFile $buildFile a build file.
-     * @param \Project $p the Project to attach to.
+     * @param File $buildFile a build file.
+     * @param Project $p the Project to attach to.
      */
-    private function attachListeners(\PhingFile $buildFile, \Project $p): void
+    private function attachListeners(File $buildFile, Project $p): void
     {
         foreach ($this->listeners as $al) {
-            $p->addBuildListener(new class ($buildFile->getAbsolutePath(), $al) implements \BuildListener {
+            $p->addBuildListener(new class ($buildFile->getAbsolutePath(), $al) implements BuildListener {
                 private $buildFile;
                 private $a;
 
-                public function __construct(\PhingFile $buildFile, PhingUnitListener $a)
+                public function __construct(File $buildFile, PhingUnitListener $a)
                 {
                     $this->buildFile = $buildFile;
                     $this->a = $a;
                 }
 
-                public function buildStarted(\BuildEvent $event)
+                public function buildStarted(BuildEvent $event)
                 {
                     $this->a->startTestSuite($event->getProject(), $this->buildFile);
                 }
 
-                public function buildFinished(\BuildEvent $event)
+                public function buildFinished(BuildEvent $event)
                 {
                     $this->a->endTestSuite($event->getProject(), $this->buildFile);
                 }
 
-                public function targetStarted(\BuildEvent $event)
+                public function targetStarted(BuildEvent $event)
                 {
                 }
 
-                public function targetFinished(\BuildEvent $event)
+                public function targetFinished(BuildEvent $event)
                 {
                 }
 
-                public function taskStarted(\BuildEvent $event)
+                public function taskStarted(BuildEvent $event)
                 {
                 }
 
-                public function taskFinished(\BuildEvent $event)
+                public function taskFinished(BuildEvent $event)
                 {
                 }
 
-                public function messageLogged(\BuildEvent $event)
+                public function messageLogged(BuildEvent $event)
                 {
                 }
             });

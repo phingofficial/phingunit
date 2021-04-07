@@ -2,14 +2,18 @@
 
 namespace Phing\PhingUnit;
 
+use Phing\Exception\BuildException;
+use Phing\Task\System\SequentialTask;
+
 /**
  * Expects the nested tasks to throw a BuildException and optinally
  * asserts the message of that exception.
  *
  * <p>Throws a AssertFailedException if the nested tasks do not throw
  * the expected BuildException.</p>
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
-class ExpectFailureTask extends \SequentialTask
+class ExpectFailureTask extends SequentialTask
 {
     private $expectedMessage;
     private $message;
@@ -38,7 +42,7 @@ class ExpectFailureTask extends \SequentialTask
         $thrown = false;
         try {
             parent::main();
-        } catch (\BuildException $e) {
+        } catch (BuildException $e) {
             $thrown = true;
             $caughtMessage = $e->getMessage();
             if ($this->expectedMessage !== null &&

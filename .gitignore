@@ -1,4 +1,5 @@
 /.idea/
 /vendor/
 custom.task.properties
+custom.type.properties
 composer.lock

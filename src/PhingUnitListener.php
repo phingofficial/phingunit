@@ -2,9 +2,12 @@
 
 namespace Phing\PhingUnit;
 
+use Phing\Project;
+use Phing\Task;
+
 /**
  * Interface PhingUnitListener
- * @package Phing\PhingUnit
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
 interface PhingUnitListener
 {
@@ -12,9 +15,9 @@ interface PhingUnitListener
      * Set a reference to the PhingUnit task executing the tests, this
      * provides access to the containing project, target or Phing's
      * logging system.
-     * @param \Task $t the parent task
+     * @param Task $t the parent task
      */
-    public function setParentTask(\Task $t);
+    public function setParentTask(Task $t);
 
     /**
      * Set a reference to the Project instance currently executing the
@@ -23,23 +26,23 @@ interface PhingUnitListener
      * <p>This provides access to the logging system or the properties
      * of the project under test.  Note that different test targets
      * will be executed in different Phing Project instances.</p>
-     * @param \Project $p the test project
+     * @param Project $p the test project
      */
-    public function setCurrentTestProject(\Project $p);
+    public function setCurrentTestProject(Project $p);
 
     /**
      * Invoked once per build file, before any targets get executed.
-     * @param \Project $testProject the project
+     * @param Project $testProject the project
      * @param string $buildFile the build file
      */
-    public function startTestSuite(\Project $testProject, string $buildFile);
+    public function startTestSuite(Project $testProject, string $buildFile);
 
     /**
      * Invoked once per build file, after all targets have been executed.
-     * @param \Project $testProject the project
+     * @param Project $testProject the project
      * @param string $buildFile the build file
      */
-    public function endTestSuite(\Project $testProject, string $buildFile);
+    public function endTestSuite(Project $testProject, string $buildFile);
 
     /**
      * Invoked before a test target gets executed.

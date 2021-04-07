@@ -4,7 +4,7 @@ namespace Phing\PhingUnit;
 
 /**
  * Interface PhingUnitExecutionNotifier
- * @package Phing\PhingUnit
+ * @author Siad Ardroumli <siad.ardroumli@gmail.com>
  */
 interface PhingUnitExecutionNotifier
 {
